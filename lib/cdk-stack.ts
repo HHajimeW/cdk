@@ -3,12 +3,7 @@ import * as glue from "@aws-cdk/aws-glue";
 import * as s3 from '@aws-cdk/aws-s3'
 import * as iam from "@aws-cdk/aws-iam";
 import * as s3Deploy from '@aws-cdk/aws-s3-deployment'
-import * as sfn from "@aws-cdk/aws-stepfunctions";
-import * as tasks from "@aws-cdk/aws-stepfunctions-tasks";
-import * as logs from "@aws-cdk/aws-logs";
 import { ContainerBatch } from "./container-batch";
-import * as targets from "@aws-cdk/aws-events-targets";
-import { Rule, Schedule } from '@aws-cdk/aws-events';
 
 export interface Context {
   ENVStage: string;
