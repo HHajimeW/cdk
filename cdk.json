@@ -1,17 +1,57 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/cdk.ts",
+  "app": "npx ts-node --prefer-ts-exts bin/devio.ts",
   "context": {
-    "@aws-cdk/aws-apigateway:usagePlanKeyOrderInsensitiveId": true,
-    "@aws-cdk/core:enableStackNameDuplicates": "true",
-    "aws-cdk:enableDiffNoFail": "true",
-    "@aws-cdk/core:stackRelativeExports": "true",
-    "@aws-cdk/aws-ecr-assets:dockerIgnoreSupport": true,
-    "@aws-cdk/aws-secretsmanager:parseOwnedSecretName": true,
-    "@aws-cdk/aws-kms:defaultKeyPolicies": true,
-    "@aws-cdk/aws-s3:grantWriteWithoutAcl": true,
-    "@aws-cdk/aws-ecs-patterns:removeDefaultDesiredCount": true,
-    "@aws-cdk/aws-rds:lowercaseDbIdentifier": true,
-    "@aws-cdk/aws-efs:defaultEncryptionAtRest": true,
-    "@aws-cdk/aws-lambda:recognizeVersionProps": true
+     "dev": {
+      "@aws-cdk/core:enableStackNameDuplicates": "true",
+      "aws-cdk:enableDiffNoFail": "true",
+      "@aws-cdk/core:stackRelativeExports": "true",
+      "@aws-cdk/aws-ecr-assets:dockerIgnoreSupport": true,
+      "@aws-cdk/aws-secretsmanager:parseOwnedSecretName": true,
+      "@aws-cdk/aws-kms:defaultKeyPolicies": true,
+      "@aws-cdk/aws-s3:grantWriteWithoutAcl": true,
+      "Env": "dev",
+      "DataBucketName": "sample.dev",
+      "GlueScriptLocation": "application/glue/src",
+      "GlueLibraryLocation": "application/glue/lib",
+      "GlueConnectionName": "hogehoge",
+      "ContainerImageTag": "",
+      "VpcId": "任意の vpc id",
+      "SubnetIds": ["任意の subnet id"],
+      "ServiceRoleForBatchARN": "任意の AWS Batch 実行ロールの Arn",
+      "JobRoleARN": "任意の AWS Batch Job の実行ロールのArn",
+      "JobOverrideCommand": [""],
+      "JobImageRepositoryName": "作成する AWS Batch のジョブイメージのリポジトリの名前",
+      "JobImageTagName": "Docker の Image Tag",
+      "JobvCPUS": 1,
+      "JobMemoryLimitMiB": 1024
+    },
+     "stg": {
+      "@aws-cdk/core:enableStackNameDuplicates": "true",
+      "aws-cdk:enableDiffNoFail": "true",
+      "@aws-cdk/core:stackRelativeExports": "true",
+      "@aws-cdk/aws-ecr-assets:dockerIgnoreSupport": true,
+      "@aws-cdk/aws-secretsmanager:parseOwnedSecretName": true,
+      "@aws-cdk/aws-kms:defaultKeyPolicies": true,
+      "@aws-cdk/aws-s3:grantWriteWithoutAcl": true,
+      "Env": "stg",
+      "DataBucketName": "sample.stg",
+      "GlueScriptLocation": "application/glue/src",
+      "GlueLibraryLocation": "application/glue/lib",
+      "GlueConnectionName": "hogehoge"
+    },
+     "prd": {
+      "@aws-cdk/core:enableStackNameDuplicates": "true",
+      "aws-cdk:enableDiffNoFail": "true",
+      "@aws-cdk/core:stackRelativeExports": "true",
+      "@aws-cdk/aws-ecr-assets:dockerIgnoreSupport": true,
+      "@aws-cdk/aws-secretsmanager:parseOwnedSecretName": true,
+      "@aws-cdk/aws-kms:defaultKeyPolicies": true,
+      "@aws-cdk/aws-s3:grantWriteWithoutAcl": true,
+      "Env": "prd",
+      "DataBucketName": "sample.prd",
+      "GlueScriptLocation": "application/glue/src",
+      "GlueLibraryLocation": "application/glue/lib",
+      "GlueConnectionName": "hogehoge"
+    }
   }
-}
+ }
