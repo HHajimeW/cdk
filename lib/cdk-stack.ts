@@ -4,6 +4,11 @@ import * as s3 from '@aws-cdk/aws-s3'
 import * as iam from "@aws-cdk/aws-iam";
 import * as s3Deploy from '@aws-cdk/aws-s3-deployment'
 import { ContainerBatch } from "./container-batch";
+import * as tasks from "@aws-cdk/aws-stepfunctions-tasks";
+import * as logs from "@aws-cdk/aws-logs";
+import { Rule, Schedule } from '@aws-cdk/aws-events';
+import * as sfn from "@aws-cdk/aws-stepfunctions";
+import * as targets from "@aws-cdk/aws-events-targets";
 
 export interface Context {
   ENVStage: string;
@@ -159,5 +164,55 @@ export class CdkStack extends cdk.Stack {
     });
 
     // #endregion AWS Batch
+
+    // Step Functions
+
+    const errorHandlerState = new sfn.Fail(this, "jobFailed", {
+      cause: "Invalid response.",
+      error: "ErrorA",
+    })
+
+    // Tasks of Step Functions
+    const glueJobTask = new tasks.GlueStartJobRun(
+      this,
+      `CalculateStudentKeywordBERTVectorsTask-${context.ENVStage}`,
+      {
+        glueJobName: glueJob.name || "",
+        resultPath: '$.firstResult',
+        integrationPattern: sfn.IntegrationPattern.RUN_JOB
+      }
+    ).addCatch(errorHandlerState);
+    
+    const AWSBatchTask = new tasks.BatchSubmitJob(
+      this,
+      `CalculateFaissIndexTask-StudentKeywordBERT-${context.ENVStage}`,
+      {
+        jobDefinitionArn: awsBatch.jobDefinitionArn, 
+        jobName: batchName,
+        jobQueueArn: awsBatch.jobQueueArn,
+        resultPath: '$.secondResult',
+      }
+    ).addCatch(errorHandlerState);
+    const definition = glueJobTask.next(AWSBatchTask);
+
+    const logGroup = new logs.LogGroup(this, 'aws/statemachine/keywordBERT');
+
+    // State Machine
+    const stateMachine = new sfn.StateMachine(this, `KeywordBERTSimilarStudentStateMachine-${context.ENVStage}`, {
+      definition,
+      timeout: cdk.Duration.minutes(150),
+      logs: {
+        destination: logGroup,
+        level: sfn.LogLevel.ALL,
+      }
+    });
+
+    // Event Bridge
+    const stateMachineTarget = new targets.SfnStateMachine(stateMachine);
+
+    new Rule(this, `ScheduleRule-${context.ENVStage}`, {
+      schedule: Schedule.cron({ minute: '0', hour: context.EventBridgeHour, weekDay: context.EventBridgeWeekday}),
+      targets: [stateMachineTarget],
+    });
   }
 }
